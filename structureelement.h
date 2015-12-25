@@ -27,7 +27,8 @@ enum MyItemType
     courseItem      = 1001,
     directoryItem   = 1002,
     fileItem        = 1003,
-    messageItem     = 1004
+    messageItem     = 1004,
+    wikiItem        = 1005,
 };
 
 enum MyItemDataRole
@@ -41,6 +42,7 @@ enum MyItemDataRole
     bodyRole            = 38,
     topicRole           = 39,
     authorRole          = 40,
+    wikiIdRole          = 41,
 };
 
 enum synchroniseStatus
@@ -57,6 +59,9 @@ public:
     Structureelement(QString name, QUrl url = QUrl(), int time = 0, qint32 size = 0, QString cid = "", MyItemType typeEX = fileItem);
 
     Structureelement(QString body, QString topic, QString author, int time = 0, QString cid = "", MyItemType typeEX = messageItem);
+
+    Structureelement(int bodyId, QString topic, QString author, int time = 0, QString cid = "", MyItemType typeEX = messageItem);
+
 
     int type() const { return typeEX; }
 
@@ -92,6 +97,9 @@ protected:
 
     /// Autor der Nachricht
     QString author;
+
+    /// Id des Wiki bodys
+    int bodyId;
 
     /// Status der Synchronisation
     enum synchroniseStatus  synchronised;

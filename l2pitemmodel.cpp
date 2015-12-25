@@ -292,6 +292,11 @@ void L2pItemModel::addFeatureFromReply(QNetworkReply *reply, Structureelement *c
         replies.insert(manager.get(createApiRequest(course, "viewAllEmails")),
         {course, ReplyInfo::files});
     }
+    if(options->iswikiCheckBoxChecked()&& activeFeatures.contains("Wiki"))
+    {
+        replies.insert(manager.get(createApiRequest(course, "viewAllWikis")),
+        {course, ReplyInfo::files});
+    }
 }
 
 void L2pItemModel::addFilesFromReply(QNetworkReply *reply, Structureelement *course)

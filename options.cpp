@@ -212,6 +212,11 @@ bool Options::isEmailAttachmentsCheckBoxChecked()
     return ui->emailAttachmentsCheckBox->isChecked();
 }
 
+bool Options::iswikiCheckBoxChecked()
+{
+    return ui->wikiCheckBox->isChecked();
+}
+
 bool Options::isAnnouncementAttachmentsCheckBoxChecked()
 {
     return ui->announcementAttachmentsCheckBox->isChecked();

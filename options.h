@@ -33,6 +33,7 @@ public:
     bool isAssignmentsCheckBoxChecked();
     bool isMediaLibrarysCheckBoxChecked();
     bool isEmailAttachmentsCheckBoxChecked();
+    bool iswikiCheckBoxChecked();
     bool isAnnouncementAttachmentsCheckBoxChecked();
     bool isAutoLoginOnStartCheckBoxChecked();
     bool isAutoSyncOnStartCheckBoxChecked();

@@ -120,6 +120,10 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
     {
         responseCategory = 5;
     }
+    else if(url.contains("viewAllWikis"))
+    {
+        responseCategory = 6;
+    }
     else
     {
         QLOG_ERROR() << tr("Antwort auf unbekannten Request erhalten: ") << url;
@@ -435,9 +439,27 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
 
                 }
             }
-            else {
-                continue;
-            }
         }
-    }
+        else if(responseCategory == 6)
+        {
+            int bodyId = file["itemId"].toInt();
+            QString title = file["title"].toString();
+            QString from = file["authors"].toString();
+            int time = file["lastModified"].toInt();
+            QString dirname = "Wiki";
+            urlParts.append(dirname);
+
+
+            Structureelement *dir = Utils::getDirectoryItem(currentCourse, urlParts);
+
+            Structureelement* newWiki = new Structureelement(bodyId, title, from, time,
+                                                                currentCourse->data(cidRole).toString(),
+                                                                wikiItem);
+            dir->appendRow(newWiki);
+                }
+         else {
+                continue;
+        }
+
+ }
 }

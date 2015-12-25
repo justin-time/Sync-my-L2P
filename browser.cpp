@@ -546,6 +546,28 @@ void Browser::on_dataTreeView_doubleClicked(const QModelIndex &index)
         messages.updateDate(item->data(dateRole).toDateTime().toString("ddd dd.MM.yyyy hh:mm"));
         messages.exec();
     }
+    else if (item->type() == wikiItem)
+    {
+        // Erzeugt das Popup-Fester mit der anzuzeigenden Nachricht
+        message messages;
+
+        messages.updateSubject(item->data(topicRole).toString());
+
+        // Ruft den Body der Wikiseite ab
+        QString url = QString("https://www3.elearning.rwth-aachen.de/_vti_bin/l2pservices/api.svc/v1/") %
+                QString("viewWiki/") %
+                QString("?accessToken=") %
+                options->getAccessToken() %
+                QString("&cid=") %
+                item->data(cidRole).toString()%
+                QString("&itemid=") %
+                item->data(wikiIdRole).toString();
+
+        messages.updateMessage(url);
+        messages.updateAuthor(item->data(authorRole).toString());
+        messages.updateDate(item->data(dateRole).toDateTime().toString("ddd dd.MM.yyyy hh:mm"));
+        messages.exec();
+    }
 }
 
 void Browser::on_dataTreeView_customContextMenuRequested(const QPoint &pos)
@@ -574,7 +596,7 @@ void Browser::on_dataTreeView_customContextMenuRequested(const QPoint &pos)
     }
 
     // Öffnen des Elements lokal oder im L2P
-    if (RightClickedItem->type() != messageItem)
+    if (RightClickedItem->type() != ( messageItem || wikiItem))
     {
     newCustomContextMenu.addAction(tr("Öffnen"), this, SLOT(openFile()));
     }
@@ -585,7 +607,7 @@ void Browser::on_dataTreeView_customContextMenuRequested(const QPoint &pos)
     }
 
     // Öffnen der Nachricht
-    if(RightClickedItem->type()== messageItem)
+    if(RightClickedItem->type()== ( messageItem|| wikiItem))
     {
         newCustomContextMenu.addAction(tr("Nachricht anzeigen"), this, SLOT(openMessage()));
 

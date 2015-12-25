@@ -50,6 +50,21 @@ Structureelement::Structureelement(QString body, QString topic, QString author, 
     chooseIcon();
 }
 
+   // Überladener Konstruktor für Wikielemente, welche nicht heruntergeladen werden können.
+   Structureelement::Structureelement(int bodyId, QString topic, QString author, int time, QString cid, MyItemType typeEX)
+       :QStandardItem(topic),
+        included(true),
+        bodyId(bodyId),
+        topic(topic),
+        author(author),
+        time(QDateTime::fromMSecsSinceEpoch(qint64(1000) * time)),
+        typeEX(typeEX),
+        cid(cid)
+{
+    synchronised = NOT_SYNCHRONISED;
+    chooseIcon();
+}
+
 QVariant Structureelement::data(int role) const
 {
     switch(role)
@@ -68,6 +83,8 @@ QVariant Structureelement::data(int role) const
         return topic;
     case authorRole:
         return author;
+    case wikiIdRole:
+        return bodyId;
     case synchronisedRole:
         return synchronised;
     case cidRole:
@@ -97,12 +114,12 @@ QVariant Structureelement::data(int role) const
                 statustip.append("nicht synchronisiert");
             }
         }
-        else if (typeEX == messageItem)
+        else if (typeEX == messageItem || typeEX == wikiItem)
         {
             statustip.append(text() % " - ");
             statustip.append(author);
             statustip.append(" - " % time.toString("ddd dd.MM.yyyy hh:mm"));
-        }
+        } 
         return statustip;
     }
     case Qt::ForegroundRole:
@@ -219,7 +236,7 @@ void Structureelement::chooseIcon()
     {
         setIcon(QIcon(":/icons/semester.png"));
     }
-    else if(typeEX == messageItem)
+    else if(typeEX == messageItem ||typeEX == wikiItem)
     {
         setIcon(QIcon(":/icons/mail.png"));
     }
@@ -238,7 +255,7 @@ bool Structureelement::operator< (const QStandardItem& other) const
     {
         return false;
     }
-    else if (typeEX == messageItem)
+    else if (typeEX == messageItem ||typeEX == wikiItem)
     {
         return (data(dateRole) < other.data(dateRole));
     }
