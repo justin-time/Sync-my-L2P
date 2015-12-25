@@ -168,7 +168,7 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
             continue;
         }
 
-        if(responseCategory == 0)
+        if(responseCategory == 0 ||responseCategory == 1 || responseCategory == 3)
         {
             QJsonObject fileInformation = file["fileInformation"].toObject();
 
@@ -179,38 +179,34 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
             url = QByteArray::fromPercentEncoding(url.toLocal8Bit());
             urlParts = url.split('/');
 
-            urlParts.removeFirst();
-            urlParts.removeFirst();
-            urlParts.removeFirst();
-            urlParts.removeFirst();
-            urlParts.removeLast();
-        }
-        else if(responseCategory == 1)
-        {
-            QJsonObject fileInformation = file["fileInformation"].toObject();
-
-            filename = fileInformation["fileName"].toString();
-            filesize = fileInformation["fileSize"].toString().toInt();
-            timestamp = fileInformation["modifiedTimestamp"].toInt();
-            url = fileInformation["downloadUrl"].toString();
-            url = QByteArray::fromPercentEncoding(url.toLocal8Bit());
-            urlParts = url.split('/');
+            // Wir brauchen keine Vorschaubilder
+            if(url.contains("Preview Images"))
+                {
+                    continue;
+                }
 
             urlParts.removeFirst();
             urlParts.removeFirst();
             urlParts.removeFirst();
             urlParts.removeFirst();
-            urlParts.removeFirst();
+            if (responseCategory == 1){
+                urlParts.removeFirst();
+            }
             urlParts.removeLast();
 
-            // Fix Browser-URL
-            url.remove(0,13);
+            Structureelement *dir = Utils::getDirectoryItem(currentCourse, urlParts);
+
+            Structureelement* newFile = new Structureelement(filename, QUrl(url), timestamp, filesize,
+                                                         currentCourse->data(cidRole).toString(),
+                                                         fileItem);
+
+            // Element hinzufügen
+            dir->appendRow(newFile);
         }
         else if(responseCategory == 2)
         {
             // Läd das Übungsdokument herunter
             QJsonArray assignmentDocs = file["assignmentDocuments"].toArray();
-
             foreach(QJsonValue assignmentElement, assignmentDocs)
             {
                 QJsonObject assignmentDoc = assignmentElement.toObject();
@@ -241,6 +237,7 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
                 // Element hinzufügen
                 dir->appendRow(newFile);
             }
+
             // Läd die Korrektur der eingereichten Lösung herunter
             QJsonObject correction = file["correction"].toObject();
             QJsonArray correctionFiles= correction["correctionDocuments"].toArray();
@@ -274,6 +271,7 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
                 // Element hinzufügen
                 dir->appendRow(newFile);
              }
+
             // Läd die eingereichten Lösungen herunter
             QJsonObject solutions = file["solution"].toObject();
             QJsonArray solutionFiles= solutions["solutionDocuments"].toArray();
@@ -307,9 +305,9 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
                 // Element hinzufügen
                 dir->appendRow(newFile);
              }
+
             // Läd die Musterlösung herunter
             QJsonArray sampleSolutions = file["SampleSolutionDocuments"].toArray();
-
             foreach(QJsonValue sampleSolutionElement, sampleSolutions)
             {
                 QJsonObject sampleSolutionDoc = sampleSolutionElement.toObject();
@@ -340,31 +338,6 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
                 // Element hinzufügen
                 dir->appendRow(newFile);
             }
-
-        }
-        else if(responseCategory == 3)
-        {
-            QJsonObject fileInformation = file["fileInformation"].toObject();
-
-            filename = fileInformation["fileName"].toString();
-            filesize = fileInformation["fileSize"].toString().toInt();
-            timestamp = fileInformation["modifiedTimestamp"].toInt();
-            url = fileInformation["downloadUrl"].toString();
-            url = QByteArray::fromPercentEncoding(url.toLocal8Bit());
-
-
-            // Wir brauchen keine Vorschaubilder
-            if(url.contains("Preview Images"))
-                {
-                    continue;
-                }
-
-            urlParts = url.split('/');
-            urlParts.removeFirst();
-            urlParts.removeFirst();
-            urlParts.removeFirst();
-            urlParts.removeFirst();
-            urlParts.removeLast();
 
         }
         else if(responseCategory == 4)
@@ -465,19 +438,6 @@ void Parser::parseFiles(QNetworkReply *reply, Structureelement* course, QString 
             else {
                 continue;
             }
-        }
-
-        // Wegen der inneren foreach-Schleife in den Kategorien 2,4 und 5 ist diese Übergabe nur noch für die Kategorie 0, 1 und 3
-        if(responseCategory == 0 ||responseCategory == 1 || responseCategory == 3){
-
-            Structureelement *dir = Utils::getDirectoryItem(currentCourse, urlParts);
-
-            Structureelement* newFile = new Structureelement(filename, QUrl(url), timestamp, filesize,
-                                                         currentCourse->data(cidRole).toString(),
-                                                         fileItem);
-
-            // Element hinzufügen
-            dir->appendRow(newFile);
         }
     }
 }
